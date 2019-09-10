@@ -203,3 +203,133 @@ export default App;
  ```
  修改标签标题
  ![image](https://github.com/FanWorldBegin/react-hook/blob/master/images/2.png)
+
+ ## 5.使用 React Hooks useEffect 发送 ajax 请求获取数据全攻略
+fetch 是浏览器提供的发送ajax 请求的方法, 发送请求，当count发生改变时候刷新。
+
+```javascript
+const useFetch = (url, count) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch(url);
+      const data = await response.json();
+      setData(data);
+      setLoading(false);
+    };
+    fetchData();
+  }, [count]) //传入空数组只在componentDidMount 执行一次
+
+  return { data, loading }
+
+}
+```
+
+App组件中调用, 当点击按钮修改count时候触发。
+```javascript
+
+const App = (props) => {
+  const [count, setCount] = useState(0);
+  const { data, loading } = useFetch("https://randomuser.me/api/", count);
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        获取名字
+      </button>
+      { loading ? <div>...loading...</div> : <div>{ data.results[0].name.first }</div> }
+    </div>
+  );
+}
+
+```
+
+## 6. React Hooks useEffect 中的 componentWillUnmount - 实例
+组件要被卸载了如何使用, 点击change Project按钮切换组件，进行卸载
+
+在MyAPI中定义定时器方法，每秒count + 1,  清除定时器方法， 重制方法.
+```javascript
+
+const MyAPI = {
+  count: 0,
+  subscribe(cb) {
+    this.intervalId = setInterval(() => {
+      this.count += 1;
+      cb(this.count);
+    }, 1000);
+  },
+  unsubscribe() {
+    clearInterval(this.intervalId);
+    this.reset();
+  },
+  reset() {
+    this.count = 0;
+  },
+};
+
+```
+
+
+在project变化时候执行， return为 willUnmount阶段
+```javascript
+const UseEffectComponent = (props) => {
+  const { project } = props;
+  const [timeOnProject, setTimeOnProject] = useState(0);
+
+  useEffect(() => {
+    MyAPI.subscribe(timeOnProject => {
+      setTimeOnProject(timeOnProject);
+    });
+    // return 返回的是 componentWillUnmount
+    return () => {
+      MyAPI.unsubscribe();
+      setTimeOnProject(0);
+    }
+  }, [project])
+
+  return (
+    <div>
+      <h1>Project: {project}</h1>
+      <h2>
+        Time on project: <br />
+        {timeOnProject}
+      </h2>
+    </div>
+  );
+}
+```
+点击按钮切换project
+```javascript
+export default class UseEffectDemo extends Component {
+  state = {
+    project: 'Foo',
+  };
+
+  render() {
+    const { project } = this.state;
+
+    return (
+      <div>
+        <button
+          onClick={() =>
+            this.setState({
+              project: project === 'Foo' ? 'Bar' : 'Foo',
+            })
+          }
+        >
+          Change Project
+        </button>
+        <br />
+        {/* <UseEffectComponent project={project} /> */}
+        {
+          project === 'Foo' ? <UseEffectComponent project={project} /> : 'Bar'
+        }
+      </div>
+    );
+  }
+}
+
+```
