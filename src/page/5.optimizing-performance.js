@@ -26,14 +26,14 @@ const App = (props) => {
 
   return (
     <div>
-      当点击第二个按钮的时候并不需要执行第一个计算count的操作，所以跳过 设置title的useEffect
+      当点击第二个按钮的时候不改变count,并不需要执行第一个计算count的操作，所以跳过 设置title的useEffect
       <p>You clicked {count} times</p>
       <button onClick={() => setCount(count + 1)}>
-        Click me
+        count改变
       </button>
       <div>
         <button onClick={() => setName("")}>
-          Click me
+          不操作count
         </button>
       </div>
     </div>

@@ -140,3 +140,66 @@ const App = () => {
 }
 
 ```
+
+## 4.通过跳过 React Hook Effect 来优化性能
+可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
+
+* 两个按钮第一个修改count,第二个没有修改，所以在点击第二个按钮时候不更新UI, useEffect中传入count
+* 有条件的执行useEffect，传入空数组 []则一只在didMount执行一次。
+```javascript
+//过跳过 React Hook Effect 来优化性能
+import React, { useState, useEffect } from 'react';
+
+const App = (props) => {
+  const [count, setCount] = useState(0)
+  const [name, setName] = useState("rails365")
+
+  useEffect(() => {
+    console.log(`render ${count}`);
+    //修改当前标签页标题
+    document.title = `You clicked ${count} times`;
+  }, [count]) //当count 变化时候才执行
+  //当传入空数组则无效
+
+  useEffect(() => {
+    console.log("render name");
+  })
+
+  // componentWillUnmount
+  // componentDidMount() {
+  //   document.title = `You clicked ${this.state.count} times`;
+  // }
+  //
+  // componentDidUpdate() {
+  //   document.title = `You clicked ${this.state.count} times`;
+  // }
+
+  return (
+    <div>
+      当点击第二个按钮设置title的时候不改变count,并不需要执行第一个计算count的操作，所以跳过相关操作 
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        count改变
+      </button>
+      <div>
+        <button onClick={() => setName("")}>
+          不操作count
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+ 相当于在componentDidUpdata判断state状态是否改变
+ ```javascript
+ componentDidUpdate(prevProps, prevState) {
+  if (prevState.count !== this.state.count) {
+    document.title = `You clicked ${this.state.count} times`;
+  }
+}
+ ```
+ 修改标签标题
+ ![image](https://github.com/FanWorldBegin/react-hook/blob/master/images/2.png)
