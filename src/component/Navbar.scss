@@ -1,0 +1,23 @@
+.navbar-isContainer {
+  ul {
+    display: flex;
+    list-style: none;
+    li {
+      margin-right: 20px;
+      display: inline-block;
+      border: 1px solid #000;
+      padding: 4px 10px;
+      &:hover {
+        background-color: deepskyblue;
+        .nav-link  {
+          color: #fff;
+        }
+      }
+      .nav-link {
+        text-decoration: none;
+        color: #000;
+        
+      }
+    }
+  }
+}
